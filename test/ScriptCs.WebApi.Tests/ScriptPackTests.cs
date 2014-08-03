@@ -41,7 +41,6 @@ namespace ScriptCs.WebApi.Tests
                 session.Verify(s => s.ImportNamespace("System.Web.Http"));
                 session.Verify(s => s.ImportNamespace("System.Web.Http.Routing"));
                 session.Verify(s => s.ImportNamespace("Owin"));
-
             }
         }
     }
