@@ -32,10 +32,10 @@ namespace ScriptCs.WebApi
             session.AddReference("System.Net.Http");
             var namespaces = new[]
                 {
-                    "System.Web.Http",
-                    "System.Web.Http.Routing",
                     "System.Net.Http",
                     "System.Net.Http.Headers",
+                    "System.Web.Http",
+                    "System.Web.Http.Routing",
                     "Owin"
                 }.ToList();
 
