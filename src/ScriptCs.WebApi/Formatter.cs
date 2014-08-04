@@ -24,6 +24,17 @@ namespace ScriptCs.WebApi
         {
             _canReadType = canReadType;
             _canWriteType = canWriteType;
+
+            if (_canReadType == null)
+            {
+                _canReadType = t=>true;
+            }
+
+            if (_canWriteType == null)
+            {
+                _canWriteType = t => true;
+            }
+
             _readFromStream = readFromStream;
             _writeToStream = writeToStream;
         }

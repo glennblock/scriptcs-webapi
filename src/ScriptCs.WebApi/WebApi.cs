@@ -35,18 +35,21 @@ namespace ScriptCs.WebApi
 
         public WebApi(ILog logger, IControllerTypeManager typeManager)
         {
+            Guard.AgainstNullArgument("logger", logger);
+            Guard.AgainstNullArgument("typeManager", typeManager);
+
             _logger = logger;
             _typeManager = typeManager;
         }
 
         public WebApi Configure(params Type[] controllerTypes)
         {
-            return Configure(b => { }, controllerTypes);
+            return Configure((Action<IAppBuilder>) null, controllerTypes);
         }
 
         public WebApi Configure(params Assembly[] controllerAssemblies)
         {
-            return Configure(b => { }, controllerAssemblies);
+            return Configure(null, controllerAssemblies);
         }
 
         public WebApi Configure(Action<IAppBuilder> startupAction, params Type[] controllerTypes)
@@ -63,6 +66,8 @@ namespace ScriptCs.WebApi
 
         public WebApi Configure(Action<IAppBuilder> startupAction, HttpConfiguration config, params Type[] controllerTypes)
         {
+            Guard.AgainstNullArgument("config", config);
+
             _startupAction = startupAction;
             if (controllerTypes.Length == 0)
             {
@@ -95,6 +100,8 @@ namespace ScriptCs.WebApi
 
         public WebApi UseFormatterOnly(MediaTypeFormatter formatter)
         {
+            Guard.AgainstNullArgument("formatter", formatter);
+
             _theFormatter = formatter;
             _useJsonOnly = false;
             return this;
@@ -102,6 +109,12 @@ namespace ScriptCs.WebApi
 
         public IDisposable Start(string baseAddress)
         {
+            if (_config == null)
+            {
+                _config = new HttpConfiguration();
+                ApplyDefaultConfiguration(_config, _controllerTypes);
+            }
+
             return WebApp.Start(baseAddress, appBuilder =>
             {
                 appBuilder.UseWebApi(_config);
@@ -120,8 +133,13 @@ namespace ScriptCs.WebApi
         private void ApplyDefaultConfiguration(HttpConfiguration config,
                                                       IEnumerable<Type> controllerTypes)
         {
-            Contract.Requires(controllerTypes != null);
-            Contract.Requires(ControllerResolver.AllAssignableToIHttpController(controllerTypes));
+            Guard.AgainstNullArgument("controllerTypes", controllerTypes);
+            Guard.AgainstNullArgument("config", config);
+
+            if (!ControllerResolver.AllAssignableToIHttpController(controllerTypes))
+            {
+                throw new ArgumentException("controllerTypes", "Does not contain any controllers");
+            }
 
             config.Services.Replace(typeof (IHttpControllerTypeResolver), new ControllerResolver(controllerTypes.ToList()));
 

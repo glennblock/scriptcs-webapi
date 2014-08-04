@@ -12,12 +12,15 @@ namespace ScriptCs.WebApi
 {
     public class ScriptPack : IScriptPack
     {
-        private readonly ILog _logger;
-        private readonly IControllerTypeManager _typeManager;
+        internal readonly ILog _logger;
+        internal readonly IControllerTypeManager _typeManager;
 
         [ImportingConstructor]
         public ScriptPack(ILog logger, IControllerTypeManager typeManager)
         {
+            Guard.AgainstNullArgument("logger", logger);
+            Guard.AgainstNullArgument("typeManager", typeManager);
+
             _logger = logger;
             _typeManager = typeManager;
         }
@@ -29,6 +32,8 @@ namespace ScriptCs.WebApi
 
         void IScriptPack.Initialize(IScriptPackSession session)
         {
+            Guard.AgainstNullArgument("session", session);
+
             session.AddReference("System.Net.Http");
             var namespaces = new[]
                 {

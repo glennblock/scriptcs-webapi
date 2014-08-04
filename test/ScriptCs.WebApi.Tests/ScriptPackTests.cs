@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Common.Logging;
 using Moq;
 using Ploeh.AutoFixture.Xunit;
 using ScriptCs.Contracts;
@@ -14,6 +15,21 @@ namespace ScriptCs.WebApi.Tests
 {
     public class ScriptPackTests
     {
+        public class TheConstructor
+        {
+            [Theory, ScriptCsAutoData]  
+            public void SetsTheLogger(ILog logger, IControllerTypeManager typeManager)
+            {
+                
+            }
+
+            [Theory, ScriptCsAutoData]  
+            public void SetsTheTypeManager(ILog logger, IControllerTypeManager typeManager)
+            {
+                
+            }
+        }
+
         public class TheGetContextMethod
         {
             [Theory, ScriptCsAutoData]

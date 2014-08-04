@@ -10,13 +10,18 @@ namespace ScriptCs.WebApi
     {
         public WriteToStreamArgs(Type type, object instance, Stream stream, HttpContent content, TransportContext context, CancellationToken token)
         {
+            Guard.AgainstNullArgument("type", type);
+            Guard.AgainstNullArgument("instance", instance);
+            Guard.AgainstNullArgument("stream", stream);
+            Guard.AgainstNullArgument("content", content);
+            Guard.AgainstNullArgument("context", context);
+
             Type = type;
             Instance = instance;
             Stream = stream;
             Content = content;
             Context = context;
             Token = token;
-
         }
 
         public Type Type { get; private set; }

@@ -14,13 +14,13 @@ namespace ScriptCs.WebApi
 {
     public class FormatterBuilder
     {
-        private Func<Type, bool> _canReadType = t => true;
-        private Func<Type, bool> _canWriteType = t => true;
-        private Func<ReadFromStreamArgs, Task<object>> _readFromStream;
-        private Func<WriteToStreamArgs, Task> _writeToStream;
-        private readonly IList<MediaTypeMapping> _mappings;
-        private readonly IList<MediaTypeHeaderValue> _supportedMediaTypes;
-        private readonly IList<Encoding> _supportedEncodings;
+        internal Func<Type, bool> _canReadType = t => true;
+        internal Func<Type, bool> _canWriteType = t => true;
+        internal Func<ReadFromStreamArgs, Task<object>> _readFromStream;
+        internal Func<WriteToStreamArgs, Task> _writeToStream;
+        internal readonly IList<MediaTypeMapping> _mappings;
+        internal readonly IList<MediaTypeHeaderValue> _supportedMediaTypes;
+        internal readonly IList<Encoding> _supportedEncodings;
 
         public FormatterBuilder()
         {
@@ -31,12 +31,16 @@ namespace ScriptCs.WebApi
 
         public FormatterBuilder CanReadType(Func<Type, bool> condition)
         {
+            Guard.AgainstNullArgument("condition", condition);
+
             _canReadType = condition;
             return this;
         }
 
         public FormatterBuilder CanWriteType(Func<Type, bool> condition)
         {
+            Guard.AgainstNullArgument("condition", condition);
+
             _canWriteType = condition;
             return this;
         }
@@ -44,6 +48,8 @@ namespace ScriptCs.WebApi
         public FormatterBuilder ReadFromStream(
             Func<ReadFromStreamArgs, Task<object>> readFromStream)
         {
+            Guard.AgainstNullArgument("readFromStream", readFromStream);
+
             _readFromStream = readFromStream;
             return this;
         }
@@ -51,24 +57,32 @@ namespace ScriptCs.WebApi
         public FormatterBuilder WriteToStream(
             Func<WriteToStreamArgs, Task> writeToStream)
         {
+            Guard.AgainstNullArgument("writeToStream", writeToStream);
+
             _writeToStream = writeToStream;
             return this;
         }
 
         public FormatterBuilder SupportMediaType(MediaTypeHeaderValue mediaType)
         {
+            Guard.AgainstNullArgument("mediaType", mediaType);
+
             _supportedMediaTypes.Add(mediaType);
             return this;
         }
 
         public FormatterBuilder SupportMediaType(string mediaType)
         {
+            Guard.AgainstNullArgument("mediaType", mediaType);
+
            _supportedMediaTypes.Add(new MediaTypeHeaderValue(mediaType));
             return this;
         }
 
         public FormatterBuilder SupportEncoding(Encoding encoding)
         {
+            Guard.AgainstNullArgument("encoding", encoding);
+
             _supportedEncodings.Add(encoding);
             return this;
         }
@@ -78,6 +92,11 @@ namespace ScriptCs.WebApi
             string parameterValue,
             MediaTypeHeaderValue mediaType)
         {
+            Guard.AgainstNullArgument("parameterName", parameterName);
+            Guard.AgainstNullArgument("parameterValue", parameterName);
+            Guard.AgainstNullArgument("mediaType", mediaType);
+
+
             _mappings.Add(new QueryStringMapping(parameterName, parameterValue, mediaType));
             return this;
         }
@@ -87,6 +106,10 @@ namespace ScriptCs.WebApi
             string parameterValue,
             string mediaType)
         {
+            Guard.AgainstNullArgument("parameterName", parameterName);
+            Guard.AgainstNullArgument("parameterValue", parameterName);
+            Guard.AgainstNullArgument("mediaType", mediaType);
+
             _mappings.Add(new QueryStringMapping(parameterName, parameterValue, mediaType));
             return this;
         }
@@ -98,6 +121,10 @@ namespace ScriptCs.WebApi
             bool isValueSubstring, 
             string mediaType)
         {
+            Guard.AgainstNullArgument("headerName", headerName);
+            Guard.AgainstNullArgument("headerValue", headerValue);
+            Guard.AgainstNullArgument("mediaType", mediaType);
+
             _mappings.Add(new RequestHeaderMapping(headerName, headerValue, valueComparison, isValueSubstring, mediaType));
             return this;
         }
@@ -110,6 +137,10 @@ namespace ScriptCs.WebApi
             MediaTypeHeaderValue mediaType
         )
         {
+            Guard.AgainstNullArgument("headerName", headerName);
+            Guard.AgainstNullArgument("headerValue", headerValue);
+            Guard.AgainstNullArgument("mediaType", mediaType);
+
             _mappings.Add(new RequestHeaderMapping(headerName, headerValue, valueComparison, isValueSubstring, mediaType));
             return this;
         }
@@ -119,6 +150,9 @@ namespace ScriptCs.WebApi
             string mediaType
         )
         {
+            Guard.AgainstNullArgument("extension", extension);
+            Guard.AgainstNullArgument("mediaType", mediaType);
+
             _mappings.Add(new UriPathExtensionMapping(extension, mediaType));
             return this;
         }
@@ -128,6 +162,9 @@ namespace ScriptCs.WebApi
             MediaTypeHeaderValue mediaType
             )
         {
+            Guard.AgainstNullArgument("extension", extension);
+            Guard.AgainstNullArgument("mediaType", mediaType);
+            
             _mappings.Add(new UriPathExtensionMapping(extension, mediaType));
             return this;
         }

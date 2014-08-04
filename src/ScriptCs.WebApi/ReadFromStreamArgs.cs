@@ -9,6 +9,11 @@ namespace ScriptCs.WebApi
     {
         public ReadFromStreamArgs(Type type, Stream stream, HttpContent content, IFormatterLogger logger)
         {
+            Guard.AgainstNullArgument("type", type);
+            Guard.AgainstNullArgument("stream", stream);
+            Guard.AgainstNullArgument("content", content);
+            Guard.AgainstNullArgument("logger", logger);
+
             Type = type;
             Stream = stream;
             Content = content;
