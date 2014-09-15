@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -12,10 +13,10 @@ namespace ScriptCs.WebApi
     [Export(typeof(IControllerTypeManager))]
     public class ControllerTypeManager : IControllerTypeManager
     {
-        private readonly ILog _logger;
+        internal readonly ILog _logger;
         private const string RoslynAssemblyNameCharacter = "ℛ";
 
-        private static readonly string[] IgnoredAssemblyPrefixes = new[]
+        internal static readonly string[] IgnoredAssemblyPrefixes = new[]
             {
                 "Autofac,",
                 "Autofac.",
@@ -35,13 +36,17 @@ namespace ScriptCs.WebApi
         [ImportingConstructor]
         public ControllerTypeManager(ILog logger)
         {
+            Guard.AgainstNullArgument("logger", logger);
+
             _logger = logger;
         }
 
         public IEnumerable<Type> GetLoadedTypes()
         {
             var types = new List<Type>();
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies().Where(a => !IgnoredAssemblyPrefixes.Any(p => a.GetName().Name.StartsWith(p))))
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies().Where(a=>!(a.FullName.StartsWith("System") || a.FullName.StartsWith("mscorlib")));
+
+            foreach (Assembly assembly in assemblies.Where(a => !IgnoredAssemblyPrefixes.Any(p => a.GetName().Name.StartsWith(p))))
             {
                 try
                 {
@@ -69,9 +74,14 @@ namespace ScriptCs.WebApi
         {
             var types = GetLoadedTypes();
             var tempControllerTypes = ControllerResolver.WhereControllerType(types).ToList();
-            var controllerTypes = tempControllerTypes.Where(t => t.Assembly.FullName.Substring(0, 1) != RoslynAssemblyNameCharacter).ToList();
-            var roslynTypes = tempControllerTypes.Where(t => t.Assembly.FullName.StartsWith(RoslynAssemblyNameCharacter));
-            controllerTypes.Add(roslynTypes.Last());
+            var controllerTypes = tempControllerTypes.Where(t => !t.IsAbstract && t.Assembly.FullName.Substring(0, 1) != RoslynAssemblyNameCharacter).ToList();
+            var roslynTypes = tempControllerTypes.Where(t => t.Assembly.FullName.StartsWith(RoslynAssemblyNameCharacter)).ToList();
+
+            if (roslynTypes.Any())
+            {
+                controllerTypes.Add(roslynTypes.Last());
+            }
+            
             foreach (var controller in controllerTypes)
             {
                 _logger.Debug(string.Format("ScriptCs.WebApi - Found controller: {0}", controller.FullName));
@@ -81,10 +91,19 @@ namespace ScriptCs.WebApi
 
         public IEnumerable<Type> GetControllerTypes(Assembly[] assemblies)
         {
+            Guard.AgainstNullArgument("assemblies", assemblies);
+
             IEnumerable<Assembly> controllerAssemblies =
                 new List<Assembly>(AppDomain.CurrentDomain.GetAssemblies()).Union(assemblies);
+
             Type[] types = controllerAssemblies.SelectMany(a => a.GetTypes()).ToArray();
             List<Type> controllerTypes = ControllerResolver.WhereControllerType(types).ToList();
+
+            foreach (var controller in controllerTypes)
+            {
+                _logger.Debug(string.Format("ScriptCs.WebApi - Found controller: {0}", controller.FullName));
+            }
+
             return controllerTypes;
         }
 

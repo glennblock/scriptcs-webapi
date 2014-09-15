@@ -31,7 +31,6 @@ namespace ScriptCs.WebApi.Tests
             {
                 var resolver = new ControllerResolver(_controllers);
                 var controllers = resolver.GetControllerTypes(null).ToList();
-                controllers.Count.ShouldEqual(2);
                 controllers.ShouldContain(_controllers[0]);
                 controllers.ShouldContain(_controllers[1]);
             }
